@@ -1,23 +1,37 @@
 import os
-import base64
 from mistralai import Mistral
 
+# Retrieve the API key from environment variables
 api_key = os.environ["MISTRAL_API_KEY"]
+
+# Specify model
+model = "pixtral-12b-2409"
+
+# Initialize the Mistral client
 client = Mistral(api_key=api_key)
 
-# Replace with your local PDF file path
-pdf_file_path = "test.pdf"
+# Define the messages for the chat
+messages = [
+    {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "What's in this image?"
+            },
+            {
+                "type": "image_url",
+                "image_url": "https://tripfixers.com/wp-content/uploads/2019/11/eiffel-tower-with-snow.jpeg"
+            }
+        ]
+    }
+]
 
-# Read and encode the PDF file to base64
-with open(pdf_file_path, "rb") as pdf_file:
-    pdf_content = pdf_file.read()
-    pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
-
-ocr_response = client.ocr.process(
-    model="mistral-ocr-latest",
-    document={
-        "type": "document_base64",
-        "document_base64": pdf_base64
-    },
-    include_image_base64=True
+# Get the chat response
+chat_response = client.chat.complete(
+    model=model,
+    messages=messages
 )
+
+# Print the content of the response
+print(chat_response.choices[0].message.content)
